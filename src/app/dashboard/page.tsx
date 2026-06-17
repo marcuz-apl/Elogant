@@ -691,7 +691,7 @@ export default function Dashboard() {
     <div className="flex flex-col h-screen bg-background text-foreground font-sans overflow-hidden">
       
       {/* Well Metadata Toolbar */}
-      <div className="flex items-center justify-between px-6 py-2 border-b border-card-border/20 bg-[#15141a]/80 shrink-0 z-40 relative">
+      <div className="flex items-center justify-between px-6 py-2 border-b border-card-border/20 bg-sidebar/80 shrink-0 z-40 relative">
         {/* Dynamic Well Metadata Banner */}
         <div className="flex items-center gap-6 text-[11px] text-text-secondary">
           {wellData ? (
@@ -733,7 +733,7 @@ export default function Dashboard() {
       <div className="flex flex-1 min-h-0 w-full overflow-hidden relative">
         
         {/* Left Sidebar Scenario Manager */}
-        <aside className="w-64 border-r border-card-border/30 bg-[#15141a] flex flex-col shrink-0">
+        <aside className="w-64 border-r border-card-border/30 bg-sidebar flex flex-col shrink-0">
           <div className="p-4 border-b border-card-border/20 shrink-0">
             <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-3">Interpretation Controls</h2>
             <div className="grid grid-cols-2 gap-2">
@@ -1432,7 +1432,7 @@ export default function Dashboard() {
 
         {/* Right collapsible interpretation parameters panel */}
         {rightPanelOpen && wellData && !wrangleMode && (
-          <aside className="w-80 border-l border-card-border/30 bg-[#15141a] flex flex-col shrink-0 overflow-y-auto p-4 z-20">
+          <aside className="w-80 border-l border-card-border/30 bg-sidebar flex flex-col shrink-0 overflow-y-auto p-4 z-20">
             <div className="flex items-center justify-between border-b border-card-border/20 pb-2.5 mb-4">
               <h3 className="text-xs uppercase font-extrabold tracking-wider text-text-muted flex items-center gap-1">
                 <Settings size={12} className="text-[#865be9]" />
@@ -1653,17 +1653,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Status Bar Footer */}
-      <footer className="w-full py-2 border-t border-card-border/30 bg-[#15141a] px-6 flex items-center justify-between text-[10px] text-text-muted shrink-0 z-30">
-        <div>Elogant Petrophysical Logging Engine &copy; 2026. All rights reserved.</div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-            SQLite Storage Connected
-          </span>
-          <span>FastAPI: http://localhost:8000</span>
-        </div>
-      </footer>
+      {/* Old Status Bar Footer Removed */}
 
     </div>
   );

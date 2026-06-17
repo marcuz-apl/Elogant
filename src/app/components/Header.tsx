@@ -11,12 +11,12 @@ export default function Header() {
   const [mobileMenuLeftOpen, setMobileMenuLeftOpen] = useState(false);
   const [mobileMenuRightOpen, setMobileMenuRightOpen] = useState(false);
 
-  // Sync theme with body class
+  // Sync theme with html class
   useEffect(() => {
     if (isLightTheme) {
-      document.body.classList.add('light-theme');
+      document.documentElement.classList.add('light-theme');
     } else {
-      document.body.classList.remove('light-theme');
+      document.documentElement.classList.remove('light-theme');
     }
   }, [isLightTheme]);
 
