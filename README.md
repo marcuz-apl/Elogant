@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Elogant
 
-## Getting Started
+> **Unlock your Hydrocarbon.**
 
-First, run the development server:
+Elogant is a comprehensive petrophysical analysis and well log visualization platform. It is designed to assist petrophysicists and geoscientists in efficiently processing, analyzing, and reporting on well logs. Elogant provides powerful math calculation engines for computing the volume of clay, porosity, and water saturation, all wrapped in a premium and responsive user interface.
 
+## 🚀 Features
+
+- **Robust Parsing:** Easily upload and parse `.las` and ASCII formatted files.
+- **Petrophysical Engine:** Comprehensive suite of models including Archie for Water Saturation, and algorithms for Porosity (Density, Neutron, Sonic) and Clay Volume (GR, SP, RT, ND).
+- **AI/ML Workflows:** Integrated XGBoost and Linear Regression engines for sonic log prediction and interpolation.
+- **Dynamic Scenarios:** Save, manage, and recall calculation scenarios easily.
+- **Automated Reporting:** Generate comprehensive PDF reports natively.
+
+## 🛠 Tech Stack
+
+**Frontend:**
+- [Next.js](https://nextjs.org/) (React framework)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+
+**Backend:**
+- [FastAPI](https://fastapi.tiangolo.com/) (High-performance Python API framework)
+- [Pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/) for fast data processing
+- [Scikit-learn](https://scikit-learn.org/) & [XGBoost](https://xgboost.readthedocs.io/) for Machine Learning
+- [ReportLab](https://www.reportlab.com/) for PDF generation
+- **Database:** SQLite
+
+## 💻 Getting Started
+
+The project is structured as a unified monorepo.
+
+### 1. Backend Setup
+Set up your Python virtual environment and start the FastAPI server:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the API server
+python -m uvicorn backend.main:app --reload --port 8000
 ```
+The API documentation will be available at `http://localhost:8000/docs`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Frontend Setup
+In a new terminal window, install your node modules and run the Next.js dev server:
+```bash
+npm install
+npm run dev
+```
+Open `http://localhost:3000` to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📄 License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for more information.
