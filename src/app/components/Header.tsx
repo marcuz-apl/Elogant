@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Sun, Moon, Menu, X, Cpu } from 'lucide-react';
+import packageJson from '../../../package.json';
 
 export default function Header() {
   const [isLightTheme, setIsLightTheme] = useState(false);
@@ -57,7 +58,7 @@ export default function Header() {
             </div>
             <span className="block text-[8.5px] font-semibold uppercase text-text-muted w-full text-center tracking-tighter whitespace-nowrap">Unlock your Hydrocarbon</span>
           </div>
-          <div className="text-[9px] font-bold text-[#865be9] bg-[#865be9]/10 px-1.5 py-0.5 rounded-sm">v1.1</div>
+          <div className="text-[9px] font-bold text-[#865be9] bg-[#865be9]/10 px-1.5 py-0.5 rounded-sm">v{packageJson.version}</div>
         </div>
       </Link>
 
