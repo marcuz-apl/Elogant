@@ -61,6 +61,11 @@ export default function Dashboard() {
   const [mConst, setMConst] = useState<number>(1.8);
   const [nConst, setNConst] = useState<number>(2.0);
 
+  // New Dashboard Inputs
+  const [formation, setFormation] = useState<string>('');
+  const [intervalTop, setIntervalTop] = useState<string>('');
+  const [intervalBtm, setIntervalBtm] = useState<string>('');
+
   const [vclCutoff, setVclCutoff] = useState<number>(0.40);
   const [phieCutoff, setPhieCutoff] = useState<number>(0.10);
   const [swCutoff, setSwCutoff] = useState<number>(0.50);
@@ -600,13 +605,57 @@ export default function Dashboard() {
     groupedScenarios[f].push(sc);
   });
 
+  // Chart depth range calculations
+  let chartMinD = wellData?.summary?.start_depth || 0;
+  let chartMaxD = wellData?.summary?.stop_depth || 1;
+  if (intervalTop !== '' && !isNaN(parseFloat(intervalTop))) {
+    chartMinD = parseFloat(intervalTop) - 10;
+  }
+  if (intervalBtm !== '' && !isNaN(parseFloat(intervalBtm))) {
+    chartMaxD = parseFloat(intervalBtm) + 10;
+  }
+  if (chartMinD >= chartMaxD) {
+    chartMinD = chartMaxD - 10; // Failsafe
+  }
+  const chartDeltaD = chartMaxD - chartMinD || 1;
+
+  const drawTopBtmLines = (width: number, height: number) => {
+    const lines = [];
+    if (intervalTop !== '' && !isNaN(parseFloat(intervalTop))) {
+      const topY = ((parseFloat(intervalTop) - chartMinD) / chartDeltaD) * height;
+      if (topY >= 0 && topY <= height) {
+        lines.push(<line x1="0" y1={topY} x2={width} y2={topY} stroke="#ef4444" strokeWidth="2.5" strokeDasharray="6,4" key="top" />);
+      }
+    }
+    if (intervalBtm !== '' && !isNaN(parseFloat(intervalBtm))) {
+      const btmY = ((parseFloat(intervalBtm) - chartMinD) / chartDeltaD) * height;
+      if (btmY >= 0 && btmY <= height) {
+        lines.push(<line x1="0" y1={btmY} x2={width} y2={btmY} stroke="#ef4444" strokeWidth="2.5" strokeDasharray="6,4" key="btm" />);
+      }
+    }
+    return lines;
+  };
+
+  const getDepthTicks = (minD: number, maxD: number) => {
+    const delta = maxD - minD;
+    let step = 100;
+    if (delta <= 50) step = 5;
+    else if (delta <= 100) step = 10;
+    else if (delta <= 250) step = 25;
+    else if (delta <= 500) step = 50;
+    
+    const startTick = Math.ceil(minD / step) * step;
+    const ticks = [];
+    for (let d = startTick; d <= maxD; d += step) {
+      ticks.push(d);
+    }
+    return ticks;
+  };
+
   // Calculate SVG line paths for logs tracks
   const getSvgPath = (col: string, minVal: number, maxVal: number, width: number, height: number, logScale = false) => {
     if (calculatedData.length === 0) return '';
     const points: string[] = [];
-    const minD = wellData.summary.start_depth;
-    const maxD = wellData.summary.stop_depth;
-    const deltaD = maxD - minD;
 
     // downsample to prevent rendering lag on massive datasets
     const stepSize = Math.max(1, Math.floor(calculatedData.length / 500));
@@ -617,8 +666,9 @@ export default function Dashboard() {
       const val = row[col];
 
       if (val === null || val === undefined) continue;
+      if (depth < chartMinD || depth > chartMaxD) continue;
 
-      const y = ((depth - minD) / deltaD) * height;
+      const y = ((depth - chartMinD) / chartDeltaD) * height;
       let x = 0;
       if (logScale) {
         const logMin = Math.log10(Math.max(0.01, minVal));
@@ -638,8 +688,8 @@ export default function Dashboard() {
   const getPickettPoints = (width: number, height: number) => {
     if (calculatedData.length === 0) return [];
     
-    // Filter clean sand values for Pickett plot
-    const cleanSands = calculatedData.filter(row => row.VCL < 0.15 && row.PHIE > 0.01 && row.ILD > 0.1);
+    // Filter clean sand values for Pickett plot, limited to current chart depth bounds
+    const cleanSands = calculatedData.filter(row => row.VCL < 0.15 && row.PHIE > 0.01 && row.ILD > 0.1 && row.DEPT >= chartMinD && row.DEPT <= chartMaxD);
     
     const minRt = Math.log10(0.1);
     const maxRt = Math.log10(1000.0);
@@ -1209,7 +1259,7 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between border-b border-card-border/30 pb-3 mb-6">
                     <h3 className="font-extrabold text-sm tracking-tight flex items-center gap-1.5">
                       <BarChart4 size={16} className="text-[#a78bfa]" />
-                      Multi-track Logging Charts: imported + Interpreted (Depth: {depthUnit})
+                      Logging Charts: Imp'd + interp'd (Depth: {depthUnit})
                     </h3>
                     
                     <span className="text-[10px] text-text-muted font-semibold bg-[#1e1d24] px-2.5 py-1 rounded border border-card-border/20">
@@ -1217,16 +1267,65 @@ export default function Dashboard() {
                     </span>
                   </div>
 
+                  <div className="flex items-center justify-between mb-4 bg-[#1e1d24]/50 p-3 rounded-lg border border-card-border/30">
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs font-semibold text-text-muted">Formation:</label>
+                      <input 
+                        type="text" 
+                        value={formation}
+                        onChange={(e) => setFormation(e.target.value)}
+                        className="bg-background border border-card-border rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-primary w-40"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <label className="text-xs font-semibold text-text-muted">Interval of Interp - Top:</label>
+                      <input 
+                        type="number" 
+                        value={intervalTop}
+                        onChange={(e) => setIntervalTop(e.target.value)}
+                        placeholder={wellData?.summary?.start_depth?.toString() || ''}
+                        className="bg-background border border-card-border rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-primary w-24"
+                      />
+                      <label className="text-xs font-semibold text-text-muted">Btm:</label>
+                      <input 
+                        type="number" 
+                        value={intervalBtm}
+                        onChange={(e) => setIntervalBtm(e.target.value)}
+                        placeholder={wellData?.summary?.stop_depth?.toString() || ''}
+                        className="bg-background border border-card-border rounded px-2 py-1 text-sm focus:outline-none focus:border-brand-primary w-24"
+                      />
+                    </div>
+                  </div>
+
                   {/* Log tracks using lightweight responsive SVGs */}
                   <div className="w-full flex gap-3 h-[700px] overflow-hidden">
                     
+                    {/* Track 0: Depth Track */}
+                    <div className="w-14 flex-shrink-0 border border-card-border/30 rounded-lg p-2 flex flex-col relative bg-[#1e1d24]/40">
+                      <div className="text-[10px] font-bold text-center border-b border-card-border/20 pb-1 mb-2 text-text-muted">
+                        Depth
+                      </div>
+                      <div className="flex-1 relative overflow-hidden">
+                        {getDepthTicks(chartMinD, chartMaxD).map(tick => {
+                          const topPercent = ((tick - chartMinD) / chartDeltaD) * 100;
+                          return (
+                            <div key={`tick-${tick}`} className="absolute w-full flex items-center justify-center" style={{ top: `${topPercent}%`, transform: 'translateY(-50%)' }}>
+                              <span className="text-[10px] font-bold text-text-muted bg-[#1e1d24] px-1 z-10">{tick}</span>
+                              <div className="absolute w-full h-[1px] bg-card-border/50 z-0"></div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     {/* Track 1: Lithology logs */}
                     <div className="flex-1 border border-card-border/30 rounded-lg p-2 flex flex-col relative bg-[#1e1d24]/20">
                       <div className="text-[10px] font-bold text-center border-b border-card-border/20 pb-1 mb-2 text-text-muted">
-                        Lithology Logs (GR / SP)
+                        Lithology Logs (GR / SP / CALI)
                       </div>
                       <div className="flex-1 relative">
                         <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
                           {/* GR curve */}
                           <polyline 
                             fill="none" stroke="#10b981" strokeWidth="1.2"
@@ -1234,35 +1333,55 @@ export default function Dashboard() {
                           />
                           {/* SP curve */}
                           <polyline 
-                            fill="none" stroke="#3b82f6" strokeWidth="0.8" strokeDasharray="2,2"
-                            points={getSvgPath('SP', -100, 20, 100, 650)} 
+                            fill="none" stroke="#3b82f6" strokeWidth="0.8"
+                            points={getSvgPath('SP', -100, 10, 100, 650)} 
                           />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Track 2: Resistivity log (Rt logarithmic) */}
-                    <div className="flex-1 border border-card-border/30 rounded-lg p-2 flex flex-col relative bg-[#1e1d24]/20">
-                      <div className="text-[10px] font-bold text-center border-b border-card-border/20 pb-1 mb-2 text-text-muted">
-                        Resistivity Log (Rt/ILD)
-                      </div>
-                      <div className="flex-1 relative">
-                        <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {/* CALI curve */}
                           <polyline 
-                            fill="none" stroke="#f97316" strokeWidth="1.2"
-                            points={getSvgPath('ILD', 0.1, 1000, 100, 650, true)} 
+                            fill="none" stroke="#000000" strokeWidth="1.0" strokeDasharray="4,2"
+                            points={getSvgPath('CALI', 6, 36, 100, 650)} 
                           />
                         </svg>
                       </div>
                     </div>
 
-                    {/* Track 3: Density - Neutron */}
+                    {/* Track 2: Resistivities */}
                     <div className="flex-1 border border-card-border/30 rounded-lg p-2 flex flex-col relative bg-[#1e1d24]/20">
                       <div className="text-[10px] font-bold text-center border-b border-card-border/20 pb-1 mb-2 text-text-muted">
-                        Density-Neutron logs
+                        Resistivities (ILD / ILM / LL8)
                       </div>
                       <div className="flex-1 relative">
                         <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
+                          <polyline 
+                            fill="none" stroke="#ef4444" strokeWidth="1.2"
+                            points={getSvgPath('ILD', 0.1, 100, 100, 650, true)} 
+                          />
+                          <polyline 
+                            fill="none" stroke="#a855f7" strokeWidth="1.2"
+                            points={getSvgPath('ILM', 0.1, 100, 100, 650, true)} 
+                          />
+                          <polyline 
+                            fill="none" stroke="#000000" strokeWidth="1.0" strokeDasharray="4,2"
+                            points={getSvgPath('LL8', 0.1, 100, 100, 650, true)} 
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Track 3: Porosity/Sonic Logs */}
+                    <div className="flex-1 border border-card-border/30 rounded-lg p-2 flex flex-col relative bg-[#1e1d24]/20">
+                      <div className="text-[10px] font-bold text-center border-b border-card-border/20 pb-1 mb-2 text-text-muted">
+                        Porosity/Sonic Logs
+                      </div>
+                      <div className="flex-1 relative">
+                        <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
+                          {/* DT curve */}
+                          <polyline 
+                            fill="none" stroke="#3b82f6" strokeWidth="1.2"
+                            points={getSvgPath('DT', 140, 40, 100, 650)} 
+                          />
                           {/* Density curve */}
                           <polyline 
                             fill="none" stroke="#ef4444" strokeWidth="1.2"
@@ -1284,6 +1403,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex-1 relative">
                         <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
                           <polyline 
                             fill="none" stroke="#06b6d4" strokeWidth="1.5"
                             points={getSvgPath('VCL', 0, 1, 100, 650)} 
@@ -1299,6 +1419,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex-1 relative">
                         <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
                           <polyline 
                             fill="none" stroke="#06b6d4" strokeWidth="1.5"
                             points={getSvgPath('PHIE', 0.4, 0, 100, 650)} 
@@ -1318,10 +1439,12 @@ export default function Dashboard() {
                       </div>
                       <div className="flex-1 relative">
                         <svg className="w-full h-full" viewBox="0 0 100 650" preserveAspectRatio="none">
+                          {drawTopBtmLines(100, 650)}
                           {/* Net Pay Flags shading in gold (tozerox filled mock) */}
                           {calculatedMetrics && calculatedMetrics.flags.pay.map((p: number, idx: number) => {
-                            if (p === 1) {
-                              const y = (idx / calculatedMetrics.flags.pay.length) * 650;
+                            const depth = calculatedData[idx]?.DEPT;
+                            if (p === 1 && depth >= chartMinD && depth <= chartMaxD) {
+                              const y = ((depth - chartMinD) / chartDeltaD) * 650;
                               return <line key={idx} x1="0" y1={y} x2="100" y2={y} stroke="rgba(251, 191, 36, 0.15)" strokeWidth="4" />;
                             }
                             return null;
