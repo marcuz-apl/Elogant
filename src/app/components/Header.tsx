@@ -41,7 +41,7 @@ export default function Header() {
       </div>
 
       {/* Center: Logo + Name + Slogan */}
-      <Link href="/dashboard" className="flex items-center gap-2.5 justify-center group">
+      <Link href="/" className="flex items-center gap-2.5 justify-center group">
         <Image 
           src="/logo.png" 
           alt="Elogant Logo" 
@@ -58,7 +58,7 @@ export default function Header() {
             </div>
             <span className="block text-[8.5px] font-semibold uppercase text-text-muted w-full text-center tracking-tighter whitespace-nowrap">Unlock your Hydrocarbon</span>
           </div>
-          <div className="text-[9px] font-bold text-[#865be9] bg-[#865be9]/10 px-1.5 py-0.5 rounded-sm">v{packageJson.version}</div>
+          <div className="text-[9px] font-bold text-[#a78bfa] bg-[#865be9]/10 px-1.5 py-0.5 rounded-sm">v{packageJson.version}</div>
         </div>
       </Link>
 
@@ -81,10 +81,10 @@ export default function Header() {
         </button>
 
         <nav className="hidden md:flex items-center gap-4 text-sm font-semibold">
-          <Link href="/dashboard" className="px-3 py-1.5 text-text-secondary hover:text-foreground transition-colors">
+          <Link href="/" className="px-3 py-1.5 text-text-secondary hover:text-foreground transition-colors">
             Log In
           </Link>
-          <Link href="/dashboard" className="px-3 py-1.5 bg-gradient-to-r from-[#865be9] to-[#7542e5] hover:opacity-90 rounded-lg text-white transition-opacity shadow-md">
+          <Link href="/" className="px-3 py-1.5 bg-gradient-to-r from-[#865be9] to-[#7542e5] hover:opacity-90 rounded-lg text-white transition-opacity shadow-md">
             Sign Up
           </Link>
         </nav>
@@ -102,8 +102,8 @@ export default function Header() {
       {/* Mobile Right Menu Overlay */}
       {mobileMenuRightOpen && (
         <div className="absolute top-full right-0 w-full bg-background/95 border-b border-card-border p-4 flex flex-col gap-3 z-50 md:hidden glass-panel">
-          <Link href="/dashboard" onClick={() => setMobileMenuRightOpen(false)} className="py-2 border-b border-card-border/20 text-center text-text-secondary">Log In</Link>
-          <Link href="/dashboard" onClick={() => setMobileMenuRightOpen(false)} className="py-2 bg-gradient-to-r from-[#865be9] to-[#7542e5] text-center text-white rounded-lg">Sign Up</Link>
+          <Link href="/" onClick={() => setMobileMenuRightOpen(false)} className="py-2 border-b border-card-border/20 text-center text-text-secondary">Log In</Link>
+          <Link href="/" onClick={() => setMobileMenuRightOpen(false)} className="py-2 bg-gradient-to-r from-[#865be9] to-[#7542e5] text-center text-white rounded-lg">Sign Up</Link>
         </div>
       )}
     </header>
