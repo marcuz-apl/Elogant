@@ -20,14 +20,15 @@ export default function Dashboard() {
   // Scenarios state
   const [scenariosList, setScenariosList] = useState<any[]>([]);
   const [activeScenarioId, setActiveScenarioId] = useState<number | null>(null);
-  const [scenarioName, setScenarioName] = useState<string>('Base Case Scenario');
-  const [scenarioFolder, setScenarioFolder] = useState<string>('Interpretation Scenarios');
+  const [scenarioName, setScenarioName] = useState<string>('Base Case');
+  const [scenarioFolder, setScenarioFolder] = useState<string>('Interpretation Cases');
 
   // Mode toggles
   const [wrangleMode, setWrangleMode] = useState<boolean>(false);
   const [rightPanelOpen, setRightPanelOpen] = useState<boolean>(true);
 
   // Status & Loaders
+  const [isDataLoaderOpen, setIsDataLoaderOpen] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [isWrangling, setIsWrangling] = useState<boolean>(false);
@@ -161,6 +162,7 @@ export default function Dashboard() {
           setMergeOutput(`${data.curves[0].mnemonic}_MERGED`);
         }
         showStatus(`Successfully loaded logs for well: ${data.summary.well_name}`, 'success');
+        setIsDataLoaderOpen(false);
       } else {
         showStatus('Failed to load log curves from database.', 'error');
       }
@@ -191,6 +193,7 @@ export default function Dashboard() {
         setActiveWellFilename(file.name);
         await fetchWellsList();
         showStatus(`Successfully parsed and saved ${file.name} to SQLite.`, 'success');
+        setIsDataLoaderOpen(false);
       } else {
         const errText = await res.text();
         showStatus(`Parse failure: ${errText}`, 'error');
@@ -317,8 +320,10 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        showStatus(`Scenario '${scenarioName}' saved to database.`, 'success');
+        showStatus(`Case '${scenarioName}' saved to database.`, 'success');
         fetchScenarios();
+      } else {
+        showStatus('Failed to write case settings.', 'error');
       }
     } catch (err) {
       showStatus('Failed to write scenario settings.', 'error');
@@ -732,7 +737,7 @@ export default function Dashboard() {
       {/* Main Workspace Body */}
       <div className="flex flex-1 min-h-0 w-full overflow-hidden relative">
         
-        {/* Left Sidebar Scenario Manager */}
+        {/* Left Sidebar Case Manager */}
         <aside className="w-64 border-r border-card-border/30 bg-sidebar flex flex-col shrink-0">
           <div className="p-4 border-b border-card-border/20 shrink-0">
             <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-3">Interpretation Controls</h2>
@@ -740,9 +745,8 @@ export default function Dashboard() {
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-bold text-text-muted uppercase">Resolution</span>
                 <select className="w-full text-xs bg-input border border-input-border p-1.5 rounded text-white outline-none">
-                  <option>Normal</option>
-                  <option>High</option>
-                  <option>Ultra</option>
+                  <option value="0.50">Normal - 0.50</option>
+                  <option value="0.25">High - 0.25</option>
                 </select>
               </div>
               <button 
@@ -757,20 +761,20 @@ export default function Dashboard() {
           </div>
 
           <div className="p-4 border-b border-card-border/20 shrink-0">
-            <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-2">Scenario Workspace</h2>
+            <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-2">Case Manager</h2>
             <div className="flex flex-col gap-2.5">
               <input 
                 type="text" 
-                placeholder="Scenario Name"
-                value={scenarioName}
-                onChange={e => setScenarioName(e.target.value)}
+                placeholder="Folder"
+                value={scenarioFolder}
+                onChange={e => setScenarioFolder(e.target.value)}
                 className="w-full text-xs bg-input border border-input-border p-2 rounded text-white outline-none"
               />
               <input 
                 type="text" 
-                placeholder="Category Folder"
-                value={scenarioFolder}
-                onChange={e => setScenarioFolder(e.target.value)}
+                placeholder="Case Name"
+                value={scenarioName}
+                onChange={e => setScenarioName(e.target.value)}
                 className="w-full text-xs bg-input border border-input-border p-2 rounded text-white outline-none"
               />
               <button 
@@ -778,15 +782,15 @@ export default function Dashboard() {
                 disabled={!wellData}
                 className="w-full py-1.5 bg-gradient-to-r from-[#865be9] to-[#7542e5] text-white text-xs font-bold rounded flex items-center justify-center gap-1 disabled:opacity-50"
               >
-                <Save size={12} />
-                Save Scenario Case
+                <Save size={14} />
+                Save Case
               </button>
             </div>
           </div>
 
-          {/* Historical Scenarios Grouped List */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-2">Saved Case Scenarios</h2>
+          {/* Historical Cases Grouped List */}
+          <div className="flex-1 overflow-y-auto p-4 min-h-0">
+            <h2 className="text-xs uppercase font-extrabold tracking-wider text-text-muted mb-2">Saved Cases</h2>
             {scenariosList.length === 0 ? (
               <div className="text-[11px] text-text-muted italic text-center py-6">No cases in SQLite DB</div>
             ) : (
@@ -826,16 +830,26 @@ export default function Dashboard() {
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-background p-6">
           
           {/* Data Loading Section (Always starts here or uploader dashboard) */}
-          <section className="mb-6 p-6 glass-panel rounded-xl">
-            <div className="flex items-center justify-between border-b border-card-border/30 pb-3 mb-4">
-              <div className="flex items-center gap-2">
+          <section className={`mb-6 glass-panel rounded-xl transition-all ${isDataLoaderOpen ? 'p-6' : 'px-6 py-4'}`}>
+            <div className={`flex items-center justify-between ${isDataLoaderOpen ? 'border-b border-card-border/30 pb-3 mb-4' : ''}`}>
+              <div 
+                className="flex items-center gap-2 cursor-pointer group"
+                onClick={() => setIsDataLoaderOpen(!isDataLoaderOpen)}
+              >
+                <ChevronRight size={16} className={`text-text-muted transition-transform ${isDataLoaderOpen ? 'rotate-90' : 'group-hover:text-white'}`} />
                 <Upload size={18} className="text-[#a78bfa]" />
-                <h3 className="font-extrabold text-sm tracking-tight">Data Registry & Log Loader</h3>
+                <h3 className="font-extrabold text-sm tracking-tight group-hover:text-[#a78bfa] transition-colors">Data Registry & Log Loader</h3>
               </div>
               
               {wellData && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-secondary font-bold">Data Wrangle Mode:</span>
+                <div className="flex items-center gap-4">
+                  {!isDataLoaderOpen && (
+                    <span className="text-xs text-[#a78bfa] font-bold bg-[#865be9]/10 px-2 py-1 rounded">
+                      Active: {activeWellFilename}
+                    </span>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-text-secondary font-bold">Data Wrangle Mode:</span>
                   <div className="flex border border-card-border/30 rounded-lg overflow-hidden shrink-0">
                     <button 
                       onClick={() => setWrangleMode(true)}
@@ -850,12 +864,14 @@ export default function Dashboard() {
                       OFF
                     </button>
                   </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Dropdown database selection */}
+            {isDataLoaderOpen && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Dropdown database selection */}
               <div className="flex flex-col gap-2">
                 <label className="text-[10px] font-extrabold text-text-muted uppercase">Select Well log from SQLite DB</label>
                 <select 
@@ -892,6 +908,7 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+            )}
           </section>
 
           {/* Conditional View panels */}
