@@ -1,0 +1,11 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+pandas>=2.2.0
+numpy>=1.26.0
+lasio>=0.31
+xgboost>=2.0.0
+scikit-learn>=1.4.0
+reportlab>=4.1.0
+openpyxl>=3.1.2
+python-multipart

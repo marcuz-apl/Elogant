@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+:root {
+  --background: #15141a;
+  --foreground: #ffffff;
+  --card-bg: rgba(43, 42, 51, 0.6);
+  --card-border: rgba(74, 74, 85, 0.4);
+  --sidebar-bg: #15141a;
+  --panel-bg: rgba(43, 42, 51, 0.2);
+  --text-primary: #ffffff;
+  --text-secondary: #cfcfd8;
+  --text-muted: #8b8b96;
+  --input-bg: #1e1d24;
+  --input-border: #3a3a44;
+  --table-hover: rgba(43, 42, 51, 0.3);
+  --accent-cyan: #865be9;
+  --accent-blue: #7542e5;
+  --accent-gas: #f97316;
+}
+
+.light-theme {
+  --background: #ffffff;
+  --foreground: #15141a;
+  --card-bg: rgba(240, 240, 244, 0.85);
+  --card-border: rgba(207, 207, 216, 0.8);
+  --sidebar-bg: #f0f0f4;
+  --panel-bg: rgba(240, 240, 244, 0.5);
+  --text-primary: #15141a;
+  --text-secondary: #5b5b66;
+  --text-muted: #8b8b96;
+  --input-bg: #ffffff;
+  --input-border: #cfcfd8;
+  --table-hover: rgba(240, 240, 244, 0.6);
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-sidebar: var(--sidebar-bg);
+  --color-panel: var(--panel-bg);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-input: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-table-hover: var(--table-hover);
+  --font-sans: var(--font-geist-sans), Inter, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar for a premium look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(43, 42, 51, 0.05);
+}
+
+.light-theme ::-webkit-scrollbar-track {
+  background: rgba(240, 240, 244, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-panel-hover:hover {
+  background: rgba(43, 42, 51, 0.85);
+  border-color: rgba(134, 91, 233, 0.4);
+  box-shadow: 0 0 20px rgba(134, 91, 233, 0.05);
+}
+
+.light-theme .glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(117, 66, 229, 0.4);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #865be9 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.light-theme .text-gradient {
+  background: linear-gradient(135deg, #7542e5 0%, #592acb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.eur-card {
+  background: linear-gradient(to bottom right, rgba(117, 66, 229, 0.15), rgba(134, 91, 233, 0.1));
+  border-color: rgba(134, 91, 233, 0.3);
+}
+
+.light-theme .eur-card {
+  background: linear-gradient(to bottom right, rgba(117, 66, 229, 0.08), rgba(134, 91, 233, 0.05));
+  border-color: rgba(117, 66, 229, 0.25);
+}
+
+.text-gradient-gas {
+  background: linear-gradient(135deg, #ea580c 0%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Slider Custom Styling */
+input[type="range"] {
+  accent-color: #865be9;
+}
+
+.slider-gas input[type="range"] {
+  accent-color: var(--accent-gas);
+}
