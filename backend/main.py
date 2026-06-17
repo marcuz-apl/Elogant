@@ -78,7 +78,8 @@ def on_startup():
                             stop_depth=summary.get("stop_depth", 0.0),
                             step=summary.get("step", 0.0),
                             null_val=summary.get("null_val", -999.25),
-                            api_uwi=summary.get("api", "Unknown")
+                            api_uwi=summary.get("api", "Unknown"),
+                            depth_unit=summary.get("depth_unit", "ft")
                         )
                         df = pd.DataFrame(parsed["data"])
                         save_well_curves(well_id, df)
@@ -227,7 +228,8 @@ def load_file(filename: str = Query(...)):
                 "stop_depth": well["stop_depth"],
                 "step": well["step"],
                 "null_val": well["null_val"],
-                "api": well["api_uwi"]
+                "api": well["api_uwi"],
+                "depth_unit": well.get("depth_unit", "ft")
             },
             "well_id": well["id"],
             "curves": curves,
@@ -265,7 +267,8 @@ async def upload_file(file: UploadFile = File(...)):
             stop_depth=summary.get("stop_depth", 0.0),
             step=summary.get("step", 0.0),
             null_val=summary.get("null_val", -999.25),
-            api_uwi=summary.get("api", "Unknown")
+            api_uwi=summary.get("api", "Unknown"),
+            depth_unit=summary.get("depth_unit", "ft")
         )
         
         df = pd.DataFrame(parsed_data["data"])

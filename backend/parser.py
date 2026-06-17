@@ -60,6 +60,13 @@ def parse_las_file(filepath):
                 "has_data": True
             })
             
+    # Extract depth unit
+    depth_unit = "ft"
+    for curve in las.curves:
+        if curve.mnemonic in ["DEPT", "DEPTH", "M__DEPTH"]:
+            depth_unit = curve.unit or "ft"
+            break
+            
     return {
         "summary": {
             "well_name": str(well_name).strip(),
@@ -69,7 +76,8 @@ def parse_las_file(filepath):
             "stop_depth": stop_depth,
             "step": step,
             "null_val": null_val,
-            "api": str(api).strip()
+            "api": str(api).strip(),
+            "depth_unit": str(depth_unit).strip()
         },
         "curves": curves,
         "data": data
@@ -127,7 +135,8 @@ def parse_text_file(filepath):
             "stop_depth": stop_depth,
             "step": step,
             "null_val": -999.25,
-            "api": "Unknown API"
+            "api": "Unknown API",
+            "depth_unit": "ft"
         },
         "curves": curves,
         "data": data

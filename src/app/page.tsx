@@ -692,6 +692,9 @@ export default function Dashboard() {
     return points.join(' ');
   };
 
+  // Extracted dynamically from the loaded well log
+  const depthUnit = wellData?.summary?.depth_unit || wellData?.curves?.[0]?.unit || 'ft';
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground font-sans overflow-hidden">
       
@@ -707,7 +710,7 @@ export default function Dashboard() {
               <div className="h-3 w-[1px] bg-card-border/30 hidden md:block" />
               <div className="hidden md:block"><span className="text-text-muted mr-1 font-bold">API/UWI:</span> {wellData.summary.api}</div>
               <div className="h-3 w-[1px] bg-card-border/30 hidden lg:block" />
-              <div className="hidden lg:block"><span className="text-text-muted mr-1 font-bold">DEPTHS:</span> {wellData.summary.start_depth} - {wellData.summary.stop_depth} ft</div>
+              <div className="hidden lg:block"><span className="text-text-muted mr-1 font-bold">DEPTHS:</span> {wellData.summary.start_depth} - {wellData.summary.stop_depth} {depthUnit}</div>
             </>
           ) : (
             <div className="text-text-muted italic">No well log dataset active in the current session workspace</div>
@@ -901,7 +904,7 @@ export default function Dashboard() {
                 {wellData ? (
                   <>
                     <div><span className="text-text-muted font-bold">Available Curves:</span> {wellData.curves.map((c: any) => c.mnemonic).join(', ')}</div>
-                    <div className="mt-1"><span className="text-text-muted font-bold">Log Coordinates count:</span> {wellData.data.length} intervals</div>
+                    <div className="mt-1"><span className="text-text-muted font-bold">Log Depths count:</span> {wellData.data.length} intervals</div>
                   </>
                 ) : (
                   <div className="italic text-text-muted text-center">No datasets currently loaded in memory</div>
@@ -1140,7 +1143,7 @@ export default function Dashboard() {
               {/* Data Wrangle Table preview */}
               <div className="glass-panel rounded-xl p-6">
                 <h3 className="font-extrabold text-sm tracking-tight border-b border-card-border/20 pb-2.5 mb-3">
-                  Wrangled logs datasets preview (First 15 coordinate indexes)
+                  Wrangled logs datasets preview (First 15 depth indexes)
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
@@ -1187,11 +1190,11 @@ export default function Dashboard() {
                   </div>
                   <div className="glass-panel rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                     <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider block mb-1">Net Reservoir Thickness</span>
-                    <span className="text-2xl font-extrabold text-white">{calculatedMetrics.net_reservoir.toFixed(1)} <span className="text-xs font-normal text-text-muted">ft</span></span>
+                    <span className="text-2xl font-extrabold text-white">{calculatedMetrics.net_reservoir.toFixed(1)} <span className="text-xs font-normal text-text-muted">{depthUnit}</span></span>
                   </div>
                   <div className="glass-panel rounded-xl p-4 flex flex-col justify-between relative overflow-hidden eur-card">
                     <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider block mb-1">Net Pay Thickness</span>
-                    <span className="text-2xl font-extrabold text-white text-gradient">{calculatedMetrics.net_pay.toFixed(1)} <span className="text-xs font-normal text-text-muted">ft</span></span>
+                    <span className="text-2xl font-extrabold text-white text-gradient">{calculatedMetrics.net_pay.toFixed(1)} <span className="text-xs font-normal text-text-muted">{depthUnit}</span></span>
                   </div>
                   <div className="glass-panel rounded-xl p-4 flex flex-col justify-between relative overflow-hidden">
                     <span className="text-[9px] uppercase font-bold text-text-muted tracking-wider block mb-1">Net-to-Gross (NTG)</span>
@@ -1206,11 +1209,11 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between border-b border-card-border/30 pb-3 mb-6">
                     <h3 className="font-extrabold text-sm tracking-tight flex items-center gap-1.5">
                       <BarChart4 size={16} className="text-[#a78bfa]" />
-                      Interactive Multi-Track Interpretation Logging Charts (Vertical Depth ft)
+                      Multi-track Logging Charts: imported + Interpreted (Depth: {depthUnit})
                     </h3>
                     
                     <span className="text-[10px] text-text-muted font-semibold bg-[#1e1d24] px-2.5 py-1 rounded border border-card-border/20">
-                      Top Well Coordinate: {wellData.summary.start_depth} ft | Bottom Coordinate: {wellData.summary.stop_depth} ft
+                      Top Well Depth: {wellData.summary.start_depth} {depthUnit} | Bottom Depth: {wellData.summary.stop_depth} {depthUnit}
                     </span>
                   </div>
 

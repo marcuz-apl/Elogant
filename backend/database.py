@@ -27,7 +27,8 @@ def init_db():
             stop_depth REAL,
             step REAL,
             null_val REAL,
-            api_uwi TEXT
+            api_uwi TEXT,
+            depth_unit TEXT DEFAULT 'ft'
         );
         """)
         
@@ -78,18 +79,26 @@ def init_db():
             FOREIGN KEY (well_id) REFERENCES wells(id) ON DELETE CASCADE
         );
         """)
+        
+        # Add depth_unit column to wells if it doesn't exist
+        try:
+            conn.execute("ALTER TABLE wells ADD COLUMN depth_unit TEXT DEFAULT 'ft'")
+        except sqlite3.OperationalError:
+            # Column likely already exists
+            pass
+            
         conn.commit()
     finally:
         conn.close()
 
-def add_well(filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi):
+def add_well(filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi, depth_unit="ft"):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
         cursor.execute(
             """
-            INSERT INTO wells (filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO wells (filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi, depth_unit)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(filename) DO UPDATE SET
                 well_name=excluded.well_name,
                 field=excluded.field,
@@ -98,9 +107,10 @@ def add_well(filename, well_name, field, company, start_depth, stop_depth, step,
                 stop_depth=excluded.stop_depth,
                 step=excluded.step,
                 null_val=excluded.null_val,
-                api_uwi=excluded.api_uwi
+                api_uwi=excluded.api_uwi,
+                depth_unit=excluded.depth_unit
             """,
-            (filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi)
+            (filename, well_name, field, company, start_depth, stop_depth, step, null_val, api_uwi, depth_unit)
         )
         cursor.execute("SELECT id FROM wells WHERE filename = ?", (filename,))
         well_id = cursor.fetchone()[0]
@@ -196,7 +206,7 @@ def get_well_curves_df(well_id):
 def get_wells_list():
     conn = get_db_connection()
     try:
-        query = "SELECT id, filename, well_name, field, company, start_depth, stop_depth, step, api_uwi FROM wells ORDER BY well_name"
+        query = "SELECT id, filename, well_name, field, company, start_depth, stop_depth, step, api_uwi, depth_unit FROM wells ORDER BY well_name"
         cursor = conn.execute(query)
         return [dict(row) for row in cursor.fetchall()]
     finally:
