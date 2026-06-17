@@ -1,6 +1,6 @@
 {
   "name": "Elogant",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -24,5 +24,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "buildTime": "build 2026-06-17-1812"
+  "buildTime": "build 2026-06-17-1816"
 }
